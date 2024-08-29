@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paint</title>
+    <style>
+      *,
+      *::after,
+      *::before {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #222;
+        padding: 16px;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #fce300;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+
+        img {
+          width: 16px;
+          height: auto;
+        }
+      }
+
+      #canvas {
+        background-color: #fff;
+      }
+
+      header {
+        background-color: silver;
+        padding: 2px;
+
+        button {
+          border: 0;
+          background-color: transparent;
+
+          &:hover {
+            box-shadow: 1px 1px black, inset -1px -1px gray, inset 1px 1px white;
+          }
+        }
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      footer {
+        background-color: silver;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        section {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+      }
+
+      #container {
+        border: 1px solid #808080;
+      }
+
+      .colorC {
+        height: 20px;
+        width: 20px;
+        flex: 0 0 20px;
+      }
+    </style>
+    <script type="module">
+      const $ = (el) => document.querySelector(el);
+      const $$ = (el) => document.querySelectorAll(el);
+
+      const $canvas = $("#canvas");
+      const $inputColor = $("#color-picker");
+      const $sectionColors = $("#sectionColors");
+
+      const ctx = $canvas.getContext("2d");
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.lineWidth = 2
+
+      let canDraw = false;
+      let initX = 0,
+        initY = 0;
+
+      $canvas.addEventListener("mousedown", handleCanvasMosuseDown);
+      $canvas.addEventListener("mouseup", stopDraw);
+      $canvas.addEventListener("mouseleave", stopDraw);
+      $canvas.addEventListener("mousemove", draw);
+
+      $inputColor.addEventListener("change", (event) => {
+        const { target } = event;
+
+        ctx.strokeStyle = target.value;
+        createColorDiv(target.value);
+      });
+
+      function handleCanvasMosuseDown(event) {
+        const { offsetX, offsetY } = event;
+        canDraw = true;
+
+        initX = offsetX;
+        initY = offsetY;
+      }
+
+      function stopDraw() {
+        canDraw = false;
+      }
+
+      function draw(event) {
+        if (!canDraw) return;
+        const { offsetX, offsetY } = event;
+
+        ctx.beginPath();
+        ctx.moveTo(initX, initY);
+        ctx.lineTo(offsetX, offsetY);
+
+        ctx.stroke();
+
+        ctx.closePath();
+
+        initX = offsetX;
+        initY = offsetY;
+      }
+
+      function createColorDiv(color){
+        const element = document.createElement('div');
+        element.classList.add('colorC');
+        element.setAttribute('data-color',color);
+        element.style.backgroundColor = color;
+        $sectionColors.appendChild(element);
+      }
+
+      $sectionColors.addEventListener('click',({target})=>{
+        if(!target.classList.contains('colorC')) return;
+
+        const color = target.getAttribute('data-color');
+        $inputColor.value = color;
+        ctx.strokeStyle = color;
+      })
+
+
+    </script>
+  </head>
+  <body>
+    <h1>
+      <img src="assets/icon.png" alt="Logo" />
+      Pain.js
+    </h1>
+
+    <div id="container">
+      <header>
+        <button>File</button>
+        <button>Edit</button>
+        <button>View</button>
+        <button>Image</button>
+        <button>Option</button>
+        <button>Help</button>
+      </header>
+
+      <main>
+        <canvas id="canvas" width="300" height="200"></canvas>
+      </main>
+
+      <footer>
+        <input type="color" id="color-picker" value="#000000" />
+        <section id="sectionColors">
+        </section>
+      </footer>
+    </div>
+  </body>
+</html>
